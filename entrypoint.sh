@@ -76,9 +76,18 @@ set -o xtrace
 git fetch origin $BASE_BRANCH
 git fetch fork $HEAD_BRANCH
 
+#TODO verify existing signatures
+
+# import signing key
+(
+	IFS=
+	echo $KEY | gpg --import
+)
+
 # do the rebase
 git checkout -b $HEAD_BRANCH fork/$HEAD_BRANCH
 git rebase origin/$BASE_BRANCH
+git rebase --exec 'git commit --amend --no-edit -n --gpg-sign=$KEY_ID' origin/$BASE_BRANCH
 
 # push back
 git push --force-with-lease fork $HEAD_BRANCH
